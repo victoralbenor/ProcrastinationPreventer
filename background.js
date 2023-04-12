@@ -22,7 +22,9 @@ chrome.webRequest.onBeforeRequest.addListener(
 
                 if (isBlocked && !isAllowed) {
                     chrome.storage.sync.set({ requestedUrl: details.url });
-                    chrome.tabs.update(details.tabId, { url: 'intercept.html' });
+                    chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
+                        chrome.tabs.update(tab.id, { url: 'intercept.html' });
+                    });
                     resolve({ cancel: true });
                 } else {
                     resolve({ cancel: false });

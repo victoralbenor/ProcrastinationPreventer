@@ -1,35 +1,45 @@
-document.getElementById('interceptForm').addEventListener('submit', event => {
-    event.preventDefault();
-    const userInput = document.getElementById('userInput').value;
-    const duration = parseInt(document.getElementById('duration').value, 10) * 60000; // Convert to milliseconds
-    if (userInput) {
-        chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
-            const tab = tabs[0];
-            chrome.storage.sync.get(['requestedUrl'], ({ requestedUrl }) => {
-                const hostname = new URL(requestedUrl).hostname;
-                const timestamp = new Date().toLocaleString();
-                const newEvent = { website: hostname, timestamp, userInput };
-                chrome.storage.sync.get('events', ({ events }) => {
-                    if (events) {
-                        events.push(newEvent);
-                    } else {
-                        events = [newEvent];
-                    }
-                    chrome.storage.sync.set({ events }, () => {
-                        chrome.storage.sync.get('allowedSites', ({ allowedSites }) => {
-                            const allowedSite = { hostname, until: Date.now() + duration };
-                            if (allowedSites) {
-                                allowedSites.push(allowedSite);
-                            } else {
-                                allowedSites = [allowedSite];
-                            }
-                            chrome.storage.sync.set({ allowedSites }, () => {
-                                chrome.tabs.update(tab.id, { url: requestedUrl });
-                            });
-                        });
-                    });
-                });
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('interceptForm');
+    form.addEventListener('submit', event => {
+        event.preventDefault();
+        const reason = document.getElementById('reason').value;
+        const duration = parseInt(document.getElementById('duration').value, 10) || 5;
+
+        chrome.storage.sync.get('requestedUrl', ({ requestedUrl }) => {
+            const hostname = new URL(requestedUrl).hostname;
+            saveAllowedSite(hostname, duration);
+        });
+    });
+});
+
+function _saveAllowedSite(hostname, minutes) {
+    chrome.storage.sync.get('allowedSites', ({ allowedSites }) => {
+        const newSite = {
+            hostname,
+            until: Date.now() + minutes * 60 * 1000,
+        };
+
+        const updatedAllowedSites = allowedSites ? [...allowedSites, newSite] : [newSite];
+        chrome.storage.sync.set({ allowedSites: updatedAllowedSites }, () => {
+            chrome.storage.sync.get('requestedUrl', ({ requestedUrl }) => {
+                chrome.tabs.update({ url: requestedUrl });
             });
         });
-    }
-});
+    });
+}
+
+function debounce(func, wait) {
+    let timeout;
+
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+const saveAllowedSite = debounce(_saveAllowedSite, 1000);
