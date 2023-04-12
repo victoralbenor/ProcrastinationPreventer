@@ -1,0 +1,33 @@
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+textarea,
+button {
+    font-size: 16px;
+}
+
+textarea {
+    padding: 8px;
+    width: 300px;
+    margin-bottom: 16px;
+    resize: none;
+}
+
+button {
+    padding: 8px 16px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border: none;
+}

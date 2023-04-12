@@ -1,0 +1,38 @@
+{
+    "manifest_version": 2,
+    "name": "Procrastination Prevention",
+    "version": "1.0",
+    "description": "An extension to prevent procrastination.",
+    "permissions": [
+        "storage",
+        "webRequest",
+        "webRequestBlocking",
+        "tabs",
+        "activeTab",
+        "<all_urls>"
+    ],
+    "browser_action": {
+        "default_popup": "popup.html",
+        "default_icon": "icon.png"
+    },
+    "background": {
+        "scripts": [
+            "background.js"
+        ],
+        "persistent": true
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "content.js"
+            ]
+        }
+    ],
+    "options_page": "settings.html",
+    "web_accessible_resources": [
+        "intercept.html"
+    ]
+}
