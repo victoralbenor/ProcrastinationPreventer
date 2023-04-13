@@ -1,13 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Retrieve and display events
-    chrome.storage.sync.get('events', ({ events }) => {
-        if (events) {
+    chrome.storage.sync.get('allowedSites', ({ allowedSites }) => {
+        if (allowedSites) {
             const table = document.querySelector('#eventTable tbody');
-            events.forEach(event => {
+            allowedSites.forEach(site => {
                 const row = table.insertRow();
-                row.insertCell().textContent = event.website;
-                row.insertCell().textContent = event.timestamp;
-                row.insertCell().textContent = event.userInput;
+                row.insertCell().textContent = site.hostname;
+                row.insertCell().textContent = new Date(site.until - site.duration * 60 * 1000).toLocaleString();
+                row.insertCell().textContent = site.reason;
+                row.insertCell().textContent = site.duration;
             });
         }
     });

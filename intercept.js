@@ -7,16 +7,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         chrome.storage.sync.get('requestedUrl', ({ requestedUrl }) => {
             const hostname = new URL(requestedUrl).hostname;
-            saveAllowedSite(hostname, duration);
+            saveAllowedSite(hostname, duration, reason);
         });
     });
 });
 
-function _saveAllowedSite(hostname, minutes) {
+function _saveAllowedSite(hostname, minutes, reason) {
     chrome.storage.sync.get('allowedSites', ({ allowedSites }) => {
         const newSite = {
             hostname,
             until: Date.now() + minutes * 60 * 1000,
+            duration: minutes,
+            reason: reason
         };
 
         const updatedAllowedSites = allowedSites ? [...allowedSites, newSite] : [newSite];
